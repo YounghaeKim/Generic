@@ -1,8 +1,8 @@
-/* 2015-11-25 ~ 2015-11-26 ±è¿µÇØ
-ÀÎ°øÁö´É À¯ÀüÀÚ ¾Ë°í¸®Áò - »óÈ£ ±³È¯ µ¹¿¬º¯ÀÌ »ç¿ë
-¼øÈ¸¹æ¹®¿ø¹®Á¦
-µµ½Ã 1¿¡¼­ ½ÃÀÛÇÏ¿© ¸ğµç µµ½Ã¸¦ ¹æ¹® ÈÄ
-µµ½Ã 1·Î ±ÍÈ¯ÇÏ´Â °¡Àå ÂªÀº °æ·Î ±¸ÇÏ±â */
+/* 2015-11-25 ~ 2015-11-26 ê¹€ì˜í•´
+ì¸ê³µì§€ëŠ¥ ìœ ì „ì ì•Œê³ ë¦¬ì¦˜ - ìƒí˜¸ êµí™˜ ëŒì—°ë³€ì´ ì‚¬ìš©
+ìˆœíšŒë°©ë¬¸ì›ë¬¸ì œ
+ë„ì‹œ 1ì—ì„œ ì‹œì‘í•˜ì—¬ ëª¨ë“  ë„ì‹œë¥¼ ë°©ë¬¸ í›„
+ë„ì‹œ 1ë¡œ ê·€í™˜í•˜ëŠ” ê°€ì¥ ì§§ì€ ê²½ë¡œ êµ¬í•˜ê¸° */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,31 +12,31 @@
 #include <time.h>
 #include <share.h>
 
-#define DATANO		30		// µ¥ÀÌÅÍ ¼ö
-#define POOLSIZE	30		// Ç® »çÀÌÁî
-#define LASTG		600		// Áß´Ü ¼¼´ë
-#define MRATE		0.01	// µ¹¿¬º¯ÀÌ È®·ü
-#define STARTCITY	1		// ½ÃÀÛ ¹× µ¹¾Æ¿Ã µµ½Ã ¹øÈ£
+#define DATANO		30		// ë°ì´í„° ìˆ˜
+#define POOLSIZE	30		// í’€ ì‚¬ì´ì¦ˆ
+#define LASTG		600		// ì¤‘ë‹¨ ì„¸ëŒ€
+#define MRATE		0.01	// ëŒì—°ë³€ì´ í™•ë¥ 
+#define STARTCITY	1		// ì‹œì‘ ë° ëŒì•„ì˜¬ ë„ì‹œ ë²ˆí˜¸
 #define YES			1
 #define NO			0
-#define FILEPATH	"..\\result_GA.txt"	// ÆÄÀÏ °æ·Î, ÀÌ ÇÁ·ÎÁ§Æ® Æú´õ¿¡ »ı¼ºÇÑ´Ù.
+#define FILEPATH	"..\\result_GA.txt"	// íŒŒì¼ ê²½ë¡œ, ì´ í”„ë¡œì íŠ¸ í´ë”ì— ìƒì„±í•œë‹¤.
 
-//char pathbuf[100];			// BestfitÀÇ °æ¿ì ÃÖÁ¾ °æ·Î¸¦ Ãâ·ÂÇÏ±â À§ÇÑ buffer
-FILE *fp;						// °á°ú¸¦ ÆÄÀÏ·Î ÀúÀåÇÏ±â À§ÇØ »ç¿ëÇÒ ÆÄÀÏ Æ÷ÀÎÅÍ
+//char pathbuf[100];			// Bestfitì˜ ê²½ìš° ìµœì¢… ê²½ë¡œë¥¼ ì¶œë ¥í•˜ê¸° ìœ„í•œ buffer
+FILE *fp;						// ê²°ê³¼ë¥¼ íŒŒì¼ë¡œ ì €ì¥í•˜ê¸° ìœ„í•´ ì‚¬ìš©í•  íŒŒì¼ í¬ì¸í„°
 
 double calcDistance(double x1, double x2, double y1, double y2);
-double evalfit(int gene[]);					// ÀûÀÀµµ °è»ê
-void mating(int pool[POOLSIZE][DATANO]);	// ±³Â÷
-void mutation(int pool[POOLSIZE][DATANO]);	// µ¹¿¬º¯ÀÌ
-void printp(int pool[POOLSIZE][DATANO], int generation);	// °á°ú Ãâ·Â
-void initpool(int pool[POOLSIZE][DATANO]);	// ÃÊ±â Áı´Ü »ı¼º 
+double evalfit(int gene[]);					// ì ì‘ë„ ê³„ì‚°
+void mating(int pool[POOLSIZE][DATANO]);	// êµì°¨
+void mutation(int pool[POOLSIZE][DATANO]);	// ëŒì—°ë³€ì´
+void printp(int pool[POOLSIZE][DATANO], int generation);	// ê²°ê³¼ ì¶œë ¥
+void initpool(int pool[POOLSIZE][DATANO]);	// ì´ˆê¸° ì§‘ë‹¨ ìƒì„± 
 
-double rndn(double l);								// n ¹Ì¸¸ÀÇ ³­¼ö »ı¼º double
-int rndn2(int l);									// n ¹Ì¸¸ÀÇ ³­¼ö »ı¼º int
-int rndnInit(int cityPool[], int canSelectSize);	// ÃÊ±â Áı´Ü »ı¼º½Ã ºÒ±ÔÄ¢ÇÏ°Ô µµ½Ã ¼±ÅÃ
-int select(double roulette[POOLSIZE], double totalfitness);	// ºÎ¸ğ ¼±ÅÃ
-void copypool(int pool[POOLSIZE][DATANO], int nextpool[POOLSIZE][DATANO]);	// ´ÙÀ½ ¼¼´ëÀÇ Ç® º¹»ç
-void crossing(int m[], int p[], int c1[], int c2[]);	// À¯ÀüÀÚ ±³Â÷
+double rndn(double l);								// n ë¯¸ë§Œì˜ ë‚œìˆ˜ ìƒì„± double
+int rndn2(int l);									// n ë¯¸ë§Œì˜ ë‚œìˆ˜ ìƒì„± int
+int rndnInit(int cityPool[], int canSelectSize);	// ì´ˆê¸° ì§‘ë‹¨ ìƒì„±ì‹œ ë¶ˆê·œì¹™í•˜ê²Œ ë„ì‹œ ì„ íƒ
+int select(double roulette[POOLSIZE], double totalfitness);	// ë¶€ëª¨ ì„ íƒ
+void copypool(int pool[POOLSIZE][DATANO], int nextpool[POOLSIZE][DATANO]);	// ë‹¤ìŒ ì„¸ëŒ€ì˜ í’€ ë³µì‚¬
+void crossing(int m[], int p[], int c1[], int c2[]);	// ìœ ì „ì êµì°¨
 
 double q[][2] = {
 	3.9, 2.1, 9.7, 7.1, 8.2, 6.8, 2.9, 0.2, 7.2, 0.7,
@@ -47,39 +47,39 @@ double q[][2] = {
 	7.8, 3.3, 3.6, 6.3, 8.9, 7.1, 3.8, 2.9, 4.7, 5.2
 };
 
-double poolAver[LASTG];				// ¼¼´ëµéÀÇ Æò±Õ ÀûÇÕµµ ÀúÀå Àü¿ª¹è¿­
-double poolElite[LASTG];				// ¼¼´ëµéÀÇ ¿¤¸®Æ® ÀúÀå Àü¿ª ¹è¿­
-double poolSuper = 0;						// ¼¼´ëµéÀÇ ½´ÆÛ¿¤¸®Æ® ÀúÀå Àü¿ª ¹è¿­
+double poolAver[LASTG];				// ì„¸ëŒ€ë“¤ì˜ í‰ê·  ì í•©ë„ ì €ì¥ ì „ì—­ë°°ì—´
+double poolElite[LASTG];				// ì„¸ëŒ€ë“¤ì˜ ì—˜ë¦¬íŠ¸ ì €ì¥ ì „ì—­ ë°°ì—´
+double poolSuper = 0;						// ì„¸ëŒ€ë“¤ì˜ ìŠˆí¼ì—˜ë¦¬íŠ¸ ì €ì¥ ì „ì—­ ë°°ì—´
 
 int main() {
-	int pool[POOLSIZE][DATANO];				// À¯ÀüÀÚ Ç®
-	int generation;							// ÇöÀç ¼¼´ë¼ö
-	clock_t start = clock();				// ½ÇÇà ½ÃÀÛ ½Ã°£
+	int pool[POOLSIZE][DATANO];				// ìœ ì „ì í’€
+	int generation;							// í˜„ì¬ ì„¸ëŒ€ìˆ˜
+	clock_t start = clock();				// ì‹¤í–‰ ì‹œì‘ ì‹œê°„
 
-	srand((unsigned int)time(NULL));		// ³­¼ö ÃÊ±âÈ­
+	srand((unsigned int)time(NULL));		// ë‚œìˆ˜ ì´ˆê¸°í™”
 
 	if ((fp = _fsopen(FILEPATH, "w+", _SH_DENYNO)) == NULL)
 		perror("File open error");
 
-	initpool(pool);							// ÃÊ±â Áı´Ü »ı¼º
-	fprintf(fp, "pool[ÃÊ±âÁı´Ü] : \n");
-	for (int i = 0; i < POOLSIZE; i++) {	// ÃÊ±âÁı´Ü Ãâ·Â
+	initpool(pool);							// ì´ˆê¸° ì§‘ë‹¨ ìƒì„±
+	fprintf(fp, "pool[ì´ˆê¸°ì§‘ë‹¨] : \n");
+	for (int i = 0; i < POOLSIZE; i++) {	// ì´ˆê¸°ì§‘ë‹¨ ì¶œë ¥
 		for (int j = 0; j < DATANO; j++) {
 			fprintf(fp, "%d ", pool[i][j]);
 		}
 		fprintf(fp, "\n\n");
 	}
 
-	for (generation = 0; generation < LASTG; ++generation) {	// Áß´Ü ¼¼´ë±îÁö ¹İº¹
-		fprintf(fp, "%d¼¼´ë\n", generation);
-		mating(pool);		// ±³Â÷
-		mutation(pool);		// µ¹¿¬º¯ÀÌ
-		printp(pool, generation);		// °á°ú Ãâ·Â
+	for (generation = 0; generation < LASTG; ++generation) {	// ì¤‘ë‹¨ ì„¸ëŒ€ê¹Œì§€ ë°˜ë³µ
+		fprintf(fp, "%dì„¸ëŒ€\n", generation);
+		mating(pool);		// êµì°¨
+		mutation(pool);		// ëŒì—°ë³€ì´
+		printp(pool, generation);		// ê²°ê³¼ ì¶œë ¥
 	}
 
-	fprintf(fp, "¼¼´ë\t\tÆò±Õ\t\t¿¤¸®Æ®\n");
-	for (generation = 0; generation < LASTG; ++generation) {	// Á¤¸®ÇÏ¿© °á°ú Ãâ·Â
-		fprintf(fp, "%d¼¼´ë\t %lf \t", generation, poolAver[generation]);
+	fprintf(fp, "ì„¸ëŒ€\t\tí‰ê· \t\tì—˜ë¦¬íŠ¸\n");
+	for (generation = 0; generation < LASTG; ++generation) {	// ì •ë¦¬í•˜ì—¬ ê²°ê³¼ ì¶œë ¥
+		fprintf(fp, "%dì„¸ëŒ€\t %lf \t", generation, poolAver[generation]);
 		fprintf(fp, "%lf\n", poolElite[generation]);
 	}
 	fprintf(fp, "SuperElite : %lf\n", poolSuper);
@@ -94,19 +94,19 @@ int main() {
 }
 
 int select(double roulette[POOLSIZE], double totalfitness) {
-	int i;				// ¹İº¹ Á¦¾î ¹®ÀÚ
-	double ball;		// °ø
-	double acc = 0;		// ÀûÀÀµµ Àû»ê°ª
+	int i;				// ë°˜ë³µ ì œì–´ ë¬¸ì
+	double ball;		// ê³µ
+	double acc = 0;		// ì ì‘ë„ ì ì‚°ê°’
 
 	for (i = 0; i < POOLSIZE; ++i) {
-		acc += totalfitness / roulette[i];	// °Å¸®°¡ °¡±î¿ï¼ö·Ï ÀûÇÕÇÏ±â ¶§¹®¿¡ ¿ª¼ö¸¦ ÃëÇÔ
+		acc += totalfitness / roulette[i];	// ê±°ë¦¬ê°€ ê°€ê¹Œìš¸ìˆ˜ë¡ ì í•©í•˜ê¸° ë•Œë¬¸ì— ì—­ìˆ˜ë¥¼ ì·¨í•¨
 	}
 
-	ball = rndn(acc);	// ¿ª¼öÀÇ ÇÕµé
+	ball = rndn(acc);	// ì—­ìˆ˜ì˜ í•©ë“¤
 	acc = 0;
 	for (i = 0; i < POOLSIZE; ++i) {
 		acc += totalfitness / roulette[i];
-		if (acc > ball)	// ´ëÀÀÇÏ´Â À¯ÀüÀÚ
+		if (acc > ball)	// ëŒ€ì‘í•˜ëŠ” ìœ ì „ì
 			break;
 	}
 
@@ -114,77 +114,77 @@ int select(double roulette[POOLSIZE], double totalfitness) {
 }
 
 void mating(int pool[POOLSIZE][DATANO]) {
-	int i;							// ¹İº¹ Á¦¾î ÇÔ¼ö
-	double totalfitness = 0;		// ÀûÀÀµµ ÇÕ°è
-	int nextpool[POOLSIZE][DATANO];	// ÀÚ½Ä ¼¼´ë
-	double roulette[POOLSIZE];		// ÀûÀÀµµ ÀúÀå
-	int mama, papa;					// ºÎ¸ğ À¯ÀüÀÚ ¹øÈ£
+	int i;							// ë°˜ë³µ ì œì–´ í•¨ìˆ˜
+	double totalfitness = 0;		// ì ì‘ë„ í•©ê³„
+	int nextpool[POOLSIZE][DATANO];	// ìì‹ ì„¸ëŒ€
+	double roulette[POOLSIZE];		// ì ì‘ë„ ì €ì¥
+	int mama, papa;					// ë¶€ëª¨ ìœ ì „ì ë²ˆí˜¸
 
-	for (i = 0; i < POOLSIZE; ++i) {	// ·ê·¿ ÀÛ¼º
-		roulette[i] = evalfit(pool[i]);	// ÀûÀÀµµ °è»ê
+	for (i = 0; i < POOLSIZE; ++i) {	// ë£°ë › ì‘ì„±
+		roulette[i] = evalfit(pool[i]);	// ì ì‘ë„ ê³„ì‚°
 
-		totalfitness += roulette[i];	// ÀûÀÀµµ ÇÕ°è °è»ê
+		totalfitness += roulette[i];	// ì ì‘ë„ í•©ê³„ ê³„ì‚°
 	}
 
-	for (i = 0; i < POOLSIZE / 2; ++i) {// ¼±ÅÃ°ú ±³Â÷¸¦ ¹İº¹
-		do {	// ºÎ¸ğ ¼±ÅÃ
+	for (i = 0; i < POOLSIZE / 2; ++i) {// ì„ íƒê³¼ êµì°¨ë¥¼ ë°˜ë³µ
+		do {	// ë¶€ëª¨ ì„ íƒ
 			mama = select(roulette, totalfitness);
 			papa = select(roulette, totalfitness);
-		} while (mama == papa);// ºÎ¸ğ Áßº¹ Á¦°Å
-		crossing(pool[mama], pool[papa], nextpool[i * 2], nextpool[i * 2 + 1]);	// µÎ À¯ÀüÀÚ ±³Â÷
+		} while (mama == papa);// ë¶€ëª¨ ì¤‘ë³µ ì œê±°
+		crossing(pool[mama], pool[papa], nextpool[i * 2], nextpool[i * 2 + 1]);	// ë‘ ìœ ì „ì êµì°¨
 	}
-	copypool(pool, nextpool);	// ´ÙÀ½ ¼¼´ë Ç® º¹»ç
+	copypool(pool, nextpool);	// ë‹¤ìŒ ì„¸ëŒ€ í’€ ë³µì‚¬
 
 }
 
 void crossing(int m[], int p[], int c1[], int c2[]) {
-	int i, j;		// ¹İº¹ Á¦¾î º¯¼ö
-	int cp1, cp2;	// ±³Â÷ÇÒ Á¡ 2°³
-	int tmp;		// ±³È¯ ÀÓ½Ã º¯¼ö
-	c1[DATANO - 1] = STARTCITY;	// ¸¶Áö¸·¿¡´Â ¹«Á¶°Ç STARTCITY
+	int i, j;		// ë°˜ë³µ ì œì–´ ë³€ìˆ˜
+	int cp1, cp2;	// êµì°¨í•  ì  2ê°œ
+	int tmp;		// êµí™˜ ì„ì‹œ ë³€ìˆ˜
+	c1[DATANO - 1] = STARTCITY;	// ë§ˆì§€ë§‰ì—ëŠ” ë¬´ì¡°ê±´ STARTCITY
 	c2[DATANO - 1] = STARTCITY;
 
-	cp1 = rndn2(DATANO - 1);	// ±³Â÷Á¡ °áÁ¤ ¸¶Áö¸· µµ½Ã´Â ¹«Á¶°Ç STARTCITY¿©¾ß ÇÏ¹Ç·Î ¸¶Áö¸· Á¦¿Ü 0 ~ 18
+	cp1 = rndn2(DATANO - 1);	// êµì°¨ì  ê²°ì • ë§ˆì§€ë§‰ ë„ì‹œëŠ” ë¬´ì¡°ê±´ STARTCITYì—¬ì•¼ í•˜ë¯€ë¡œ ë§ˆì§€ë§‰ ì œì™¸ 0 ~ 18
 	cp2 = rndn2(DATANO - 1);
 
-	if (cp1 > cp2) {			// cp2°¡ ´õ Å©µµ·Ï ¼ø¼­ ±³Á¤
+	if (cp1 > cp2) {			// cp2ê°€ ë” í¬ë„ë¡ ìˆœì„œ êµì •
 		tmp = cp1;
 		cp1 = cp2;
 		cp2 = tmp;
 	}
 
-	for (i = cp1; i <= cp2; i++) {	// ¼±ÅÃµÈ ºÎºĞ ±³Â÷ÇÏ¿© ÀÚ½Ä¿¡°Ô ÁÜ
+	for (i = cp1; i <= cp2; i++) {	// ì„ íƒëœ ë¶€ë¶„ êµì°¨í•˜ì—¬ ìì‹ì—ê²Œ ì¤Œ
 		c1[i] = p[i];
 		c2[i] = m[i];
 	}
 
-	int isHaving;	// °¡Áö°í ÀÖ´Â ÀÎÀÚÀÎ°¡?
-	int INDEX;		// °¡Áö°í ÀÖÁö ¾ÊÀº ÀÎÀÚ¸¦ ÀÚ½Ä¿¡°Ô ³ÖÀ» ÀÎµ¦½º
+	int isHaving;	// ê°€ì§€ê³  ìˆëŠ” ì¸ìì¸ê°€?
+	int INDEX;		// ê°€ì§€ê³  ìˆì§€ ì•Šì€ ì¸ìë¥¼ ìì‹ì—ê²Œ ë„£ì„ ì¸ë±ìŠ¤
 
-	INDEX = 0;		// ÀÚ½ÄÀÇ Ã¹ ¹øÂ°¿¡ ³Ö´Â´Ù
-	for (i = 0; i < DATANO - 1; i++) {	// c1¿¡°Ô mama°¡ ¾ø´Â ÀÎÀÚ¸¦ Ã¤¿öÁÜ
+	INDEX = 0;		// ìì‹ì˜ ì²« ë²ˆì§¸ì— ë„£ëŠ”ë‹¤
+	for (i = 0; i < DATANO - 1; i++) {	// c1ì—ê²Œ mamaê°€ ì—†ëŠ” ì¸ìë¥¼ ì±„ì›Œì¤Œ
 		for (j = cp1; j <= cp2; j++) {
 			if (c1[j] == m[i]) {
-				isHaving = YES;			// ÀÚ½ÄÀÌ °¡Áö°í ÀÖ´Ù¸é ÇÊ¿ä ¾ø´Ù.
+				isHaving = YES;			// ìì‹ì´ ê°€ì§€ê³  ìˆë‹¤ë©´ í•„ìš” ì—†ë‹¤.
 				break;
 			}
-			else if (c1[j] != m[i])		// È®ÀÎÇØ º» °÷±îÁöÀÇ ÀÚ½ÄÀÌ ÀÎÀÚ¸¦ °¡Áö°í ÀÖÁö ¾ÊÀ¸¸é
+			else if (c1[j] != m[i])		// í™•ì¸í•´ ë³¸ ê³³ê¹Œì§€ì˜ ìì‹ì´ ì¸ìë¥¼ ê°€ì§€ê³  ìˆì§€ ì•Šìœ¼ë©´
 				isHaving = NO;
 		}
 
 		if (isHaving == NO) {
-			if (INDEX < cp1) {			// cp1 ¾ÕÂÊ¿¡ °¡Áö°í ÀÖÁö ¾ÊÀº ÀÎÀÚ¸¦ ³ÖÀ½
+			if (INDEX < cp1) {			// cp1 ì•ìª½ì— ê°€ì§€ê³  ìˆì§€ ì•Šì€ ì¸ìë¥¼ ë„£ìŒ
 				c1[INDEX] = m[i];
 				INDEX++;
 				if (INDEX == cp1)
 					INDEX = cp2 + 1;
 			}
-			else if (INDEX == cp1) {	// cp1 ¾ÕÂÊÀÌ ´ÙÃ¡´Ù¸é cp2µÚ·Î ¿Å±è
+			else if (INDEX == cp1) {	// cp1 ì•ìª½ì´ ë‹¤ì°¼ë‹¤ë©´ cp2ë’¤ë¡œ ì˜®ê¹€
 				INDEX = cp2 + 1;
 				c1[INDEX] = m[i];
 				INDEX++;
 			}
-			else if (INDEX > cp2) {		// cp2 µÚÂÊ¿¡ °¡Áö°í ÀÖÁö ¾Ê´Â ÀÎÀÚ¸¦ ³ÖÀ½
+			else if (INDEX > cp2) {		// cp2 ë’¤ìª½ì— ê°€ì§€ê³  ìˆì§€ ì•ŠëŠ” ì¸ìë¥¼ ë„£ìŒ
 				c1[INDEX] = m[i];
 				INDEX++;
 			}
@@ -192,30 +192,30 @@ void crossing(int m[], int p[], int c1[], int c2[]) {
 
 	}
 
-	INDEX = 0;		// ÀÚ½ÄÀÇ Ã¹¹øÂ°¿¡ ³Ö´Â´Ù
-	for (i = 0; i < DATANO - 1; i++) {	// c2¿¡°Ô papa°¡ ¾ø´Â ÀÎÀÚ¸¦ Ã¤¿öÁÜ
+	INDEX = 0;		// ìì‹ì˜ ì²«ë²ˆì§¸ì— ë„£ëŠ”ë‹¤
+	for (i = 0; i < DATANO - 1; i++) {	// c2ì—ê²Œ papaê°€ ì—†ëŠ” ì¸ìë¥¼ ì±„ì›Œì¤Œ
 		for (j = cp1; j <= cp2; j++) {
 			if (c2[j] == p[i]) {
-				isHaving = YES;			// ÀÚ½ÄÀÌ °¡Áö°í ÀÖ´Ù¸é ÇÊ¿ä ¾ø´Ù.
+				isHaving = YES;			// ìì‹ì´ ê°€ì§€ê³  ìˆë‹¤ë©´ í•„ìš” ì—†ë‹¤.
 				break;
 			}
-			else if (c2[j] != p[i])		// È®ÀÎÇØ º» °÷±îÁöÀÇ ÀÚ½ÄÀÌ ÀÎÀÚ¸¦ °¡Áö°í ÀÖÁö ¾ÊÀ¸¸é
+			else if (c2[j] != p[i])		// í™•ì¸í•´ ë³¸ ê³³ê¹Œì§€ì˜ ìì‹ì´ ì¸ìë¥¼ ê°€ì§€ê³  ìˆì§€ ì•Šìœ¼ë©´
 				isHaving = NO;
 		}
 
 		if (isHaving == NO) {
-			if (INDEX < cp1) {			// cp1 ¾ÕÂÊ¿¡ °¡Áö°í ÀÖÁö ¾ÊÀº ÀÎÀÚ¸¦ ³ÖÀ½
+			if (INDEX < cp1) {			// cp1 ì•ìª½ì— ê°€ì§€ê³  ìˆì§€ ì•Šì€ ì¸ìë¥¼ ë„£ìŒ
 				c2[INDEX] = p[i];
 				INDEX++;
 				if (INDEX == cp1)
 					INDEX = cp2 + 1;
 			}
-			else if (INDEX == cp1) {	// cp1 ¾ÕÂÊÀÌ ´ÙÃ¡´Ù¸é cp2µÚ·Î ¿Å±è
+			else if (INDEX == cp1) {	// cp1 ì•ìª½ì´ ë‹¤ì°¼ë‹¤ë©´ cp2ë’¤ë¡œ ì˜®ê¹€
 				INDEX = cp2 + 1;
 				c2[INDEX] = p[i];
 				INDEX++;
 			}
-			else if (INDEX > cp2) {		// cp2 µÚÂÊ¿¡ °¡Áö°í ÀÖÁö ¾Ê´Â ÀÎÀÚ¸¦ ³ÖÀ½
+			else if (INDEX > cp2) {		// cp2 ë’¤ìª½ì— ê°€ì§€ê³  ìˆì§€ ì•ŠëŠ” ì¸ìë¥¼ ë„£ìŒ
 				c2[INDEX] = p[i];
 				INDEX++;
 			}
@@ -225,7 +225,7 @@ void crossing(int m[], int p[], int c1[], int c2[]) {
 
 
 void copypool(int pool[POOLSIZE][DATANO], int nextpool[POOLSIZE][DATANO]) {
-	int i, j;//¹İº¹ Á¦¾î ÇÔ¼ö
+	int i, j;//ë°˜ë³µ ì œì–´ í•¨ìˆ˜
 
 	for (i = 0; i < POOLSIZE; i++) {
 		for (j = 0; j < DATANO; j++) {
@@ -240,15 +240,15 @@ double calcDistance(double x1, double x2, double y1, double y2) {
 }
 
 double evalfit(int g[]) {
-	int i;				// ¹İº¹ Á¦¾î º¯¼ö
-	double fitness = 0;	// ÀûÀÀµµ µµÁß°ª
+	int i;				// ë°˜ë³µ ì œì–´ ë³€ìˆ˜
+	double fitness = 0;	// ì ì‘ë„ ë„ì¤‘ê°’
 
 	for (i = 0; i < DATANO; i++) {
 		if (i == 0)
-			// Ã³À½ ¹æ¹® µµ½Ã¿Í STARTCITY°ú °Å¸®
+			// ì²˜ìŒ ë°©ë¬¸ ë„ì‹œì™€ STARTCITYê³¼ ê±°ë¦¬
 			fitness += calcDistance(q[g[i] - 1][0], q[STARTCITY - 1][0], q[g[i] - 1][1], q[STARTCITY - 1][1]);
 		else
-			// ´ÙÀ½ ¹æ¹® µµ½Ã¿Í ÇöÀç µµ½ÃÀÇ °Å¸®
+			// ë‹¤ìŒ ë°©ë¬¸ ë„ì‹œì™€ í˜„ì¬ ë„ì‹œì˜ ê±°ë¦¬
 			fitness += calcDistance(q[g[i] - 1][0], q[g[i - 1] - 1][0], q[g[i] - 1][1], q[g[i - 1] - 1][1]);
 	}
 
@@ -256,11 +256,11 @@ double evalfit(int g[]) {
 }
 
 void printp(int pool[POOLSIZE][DATANO], int generation) {
-	int i, j;				// ¹İº¹ Á¦¾î º¯¼ö
-	double fitness;			// ÀûÀÀµµ
-	double totalfitness = 0;// ÀûÀÀµµ ÇÕ°è
+	int i, j;				// ë°˜ë³µ ì œì–´ ë³€ìˆ˜
+	double fitness;			// ì ì‘ë„
+	double totalfitness = 0;// ì ì‘ë„ í•©ê³„
 	int elite;
-	double bestfit = 0;		// ¿¤¸®Æ® À¯ÀüÀÚ Ã³¸®¿ë º¯¼ö
+	double bestfit = 0;		// ì—˜ë¦¬íŠ¸ ìœ ì „ì ì²˜ë¦¬ìš© ë³€ìˆ˜
 
 	for (i = 0; i < POOLSIZE; i++) {
 		for (j = 0; j < DATANO; j++) {
@@ -269,11 +269,11 @@ void printp(int pool[POOLSIZE][DATANO], int generation) {
 		fitness = evalfit(pool[i]);
 		fprintf(fp, "\t%lf\n", fitness);
 
-		if (bestfit == 0) {	//bestfit ÃÊ±â °ª ¼³Á¤
+		if (bestfit == 0) {	//bestfit ì´ˆê¸° ê°’ ì„¤ì •
 			bestfit = fitness;
 			elite = i;
 		}
-		else if (fitness < bestfit) {	// ¿¤¸®Æ® ÇØ
+		else if (fitness < bestfit) {	// ì—˜ë¦¬íŠ¸ í•´
 			bestfit = fitness;
 			elite = i;
 		}
@@ -281,88 +281,88 @@ void printp(int pool[POOLSIZE][DATANO], int generation) {
 		totalfitness += fitness;
 	}
 
-	fprintf(fp, "\nElite: %d\tBestfit: %lf\n", elite, bestfit);			// ¿¤¸®Æ® ÇØÀÇ ÀûÀÀµµ Ãâ·Â
-	fprintf(fp, "Average Fitness: %lf\n\n", totalfitness / POOLSIZE);	// Æò±Õ ÀûÀÀµµ Ãâ·Â
+	fprintf(fp, "\nElite: %d\tBestfit: %lf\n", elite, bestfit);			// ì—˜ë¦¬íŠ¸ í•´ì˜ ì ì‘ë„ ì¶œë ¥
+	fprintf(fp, "Average Fitness: %lf\n\n", totalfitness / POOLSIZE);	// í‰ê·  ì ì‘ë„ ì¶œë ¥
 
-																		/*Á¤¸®µÈ °á°ú Àü¿ªº¯¼öµé¿¡ ÀúÀå*/
-	poolAver[generation] = totalfitness / POOLSIZE;		//ÇØ´ç ¼¼´ëÀÇ Æò±Õ ÀûÀÀµµ ÀúÀå
-	poolElite[generation] = bestfit;					//ÇØ´ç ¼¼´ëÀÇ ¿¤¸®Æ® ÀûÀÀµµ ÀúÀå
-	if (poolSuper == 0)		//super ¿¤¸®Æ® ÃÊ±â°ª ¼³Á¤
+																		/*ì •ë¦¬ëœ ê²°ê³¼ ì „ì—­ë³€ìˆ˜ë“¤ì— ì €ì¥*/
+	poolAver[generation] = totalfitness / POOLSIZE;		//í•´ë‹¹ ì„¸ëŒ€ì˜ í‰ê·  ì ì‘ë„ ì €ì¥
+	poolElite[generation] = bestfit;					//í•´ë‹¹ ì„¸ëŒ€ì˜ ì—˜ë¦¬íŠ¸ ì ì‘ë„ ì €ì¥
+	if (poolSuper == 0)		//super ì—˜ë¦¬íŠ¸ ì´ˆê¸°ê°’ ì„¤ì •
 		poolSuper = bestfit;
 	else if (poolSuper > bestfit)
-		poolSuper = bestfit;							//ÀüÃ¼ ¼¼´ë¿¡¼­ Ã£Àº ½´ÆÛ¿¤¸®Æ® ÀúÀå
+		poolSuper = bestfit;							//ì „ì²´ ì„¸ëŒ€ì—ì„œ ì°¾ì€ ìŠˆí¼ì—˜ë¦¬íŠ¸ ì €ì¥
 }
 
 void initpool(int pool[POOLSIZE][DATANO]) {
-	int i, j, k;			// ¹İº¹ Á¦¾îº¯¼ö
-	int cityPool[DATANO];	// ¼±ÅÃ °¡´ÉÇÑ µµ½ÃÀÇ ÁıÇÕ
-	int canSelecSize;		// ¼±ÅÃ °¡´ÉÇÑ µµ½ÃµéÀÇ °¹¼ö
+	int i, j, k;			// ë°˜ë³µ ì œì–´ë³€ìˆ˜
+	int cityPool[DATANO];	// ì„ íƒ ê°€ëŠ¥í•œ ë„ì‹œì˜ ì§‘í•©
+	int canSelecSize;		// ì„ íƒ ê°€ëŠ¥í•œ ë„ì‹œë“¤ì˜ ê°¯ìˆ˜
 
 	for (i = 0; i < POOLSIZE; ++i) {
-		canSelecSize = DATANO - 1;		// STARTCITY¸¦ ¼±ÅÃÇÏÁö ¾Ê±â À§ÇØ - 1
+		canSelecSize = DATANO - 1;		// STARTCITYë¥¼ ì„ íƒí•˜ì§€ ì•Šê¸° ìœ„í•´ - 1
 
-		for (k = 0; k < DATANO; k++) {	// ¼±ÅÃ °¡´É µµ½ÃÀÇ ÁıÇÕ ÃÊ±âÈ­
+		for (k = 0; k < DATANO; k++) {	// ì„ íƒ ê°€ëŠ¥ ë„ì‹œì˜ ì§‘í•© ì´ˆê¸°í™”
 			if (k == 0)
-				cityPool[k] = STARTCITY;// ¼±ÅÃµÇÁö ¾Ê´Â ¹è¿­ÀÇ 0¹ø ÀÎÀÚ¿¡ ½ÃÀÛ µµ½Ã¸¦ ³ÖÀ½
+				cityPool[k] = STARTCITY;// ì„ íƒë˜ì§€ ì•ŠëŠ” ë°°ì—´ì˜ 0ë²ˆ ì¸ìì— ì‹œì‘ ë„ì‹œë¥¼ ë„£ìŒ
 			cityPool[k] = k + 1;
 		}
 
 		for (j = 0; j < DATANO; ++j) {
-			pool[i][j] = rndnInit(cityPool, canSelecSize);	// ¸¶Áö¸·À» Á¦¿ÜÇÑ µµ½Ã ¼ø¼­¸¦ ·£´ıÇÏ°Ô ¼³Á¤
-			canSelecSize--;									// ¼±ÅÃµÈ µµ½Ã Á¦ ¼±ÅÃ µÇÁö ¾Êµµ·Ï ¹üÀ§¿¡¼­ Á¦¿Ü
+			pool[i][j] = rndnInit(cityPool, canSelecSize);	// ë§ˆì§€ë§‰ì„ ì œì™¸í•œ ë„ì‹œ ìˆœì„œë¥¼ ëœë¤í•˜ê²Œ ì„¤ì •
+			canSelecSize--;									// ì„ íƒëœ ë„ì‹œ ì œ ì„ íƒ ë˜ì§€ ì•Šë„ë¡ ë²”ìœ„ì—ì„œ ì œì™¸
 		}
 	}
 }
 
 double rndn(double l) {
-	double rndno;	// »ı¼ºÇÑ ³­¼ö
+	double rndno;	// ìƒì„±í•œ ë‚œìˆ˜
 
-	while ((rndno = ((double)rand() / RAND_MAX) * l) == l);// ÀÎÀÚ°ª ¹Ì¸¸ÀÇ ³­¼ö»ı¼º 
+	while ((rndno = ((double)rand() / RAND_MAX) * l) == l);// ì¸ìê°’ ë¯¸ë§Œì˜ ë‚œìˆ˜ìƒì„± 
 
 	return rndno;
 }
 
 int rndn2(int l) {
-	int rndno;		// »ı¼ºÇÑ ³­¼ö
+	int rndno;		// ìƒì„±í•œ ë‚œìˆ˜
 
-	while ((rndno = ((double)rand() / RAND_MAX) * l) == l);// ÀÎÀÚ°ª ¹Ì¸¸ÀÇ ³­¼ö»ı¼º 
+	while ((rndno = ((double)rand() / RAND_MAX) * l) == l);// ì¸ìê°’ ë¯¸ë§Œì˜ ë‚œìˆ˜ìƒì„± 
 
 	return rndno;
 }
 
 int rndnInit(int cityPool[], int canSelectSize) {
-	int rndCity;		// »ı¼ºÇÑ ³­¼ö
-	int tmp;			// ¹è¿­ÀÇ À§Ä¡¸¦ ¹Ù²Ù±â À§ÇÑ ÀÓ½Ã º¯¼ö
-	int selectedCity;	// ¼±ÅÃµÈ µµ½Ã, 
+	int rndCity;		// ìƒì„±í•œ ë‚œìˆ˜
+	int tmp;			// ë°°ì—´ì˜ ìœ„ì¹˜ë¥¼ ë°”ê¾¸ê¸° ìœ„í•œ ì„ì‹œ ë³€ìˆ˜
+	int selectedCity;	// ì„ íƒëœ ë„ì‹œ, 
 
-	if (canSelectSize == 0) {						// ¸¸¾à µµ½Ã°¡ ÇÑ°³ ³²¾Ò´Ù¸é
+	if (canSelectSize == 0) {						// ë§Œì•½ ë„ì‹œê°€ í•œê°œ ë‚¨ì•˜ë‹¤ë©´
 		selectedCity = STARTCITY - 1;
-		return rndCity = cityPool[selectedCity];	// STARTCITY ¼±ÅÃ
+		return rndCity = cityPool[selectedCity];	// STARTCITY ì„ íƒ
 	}
 	else
-		selectedCity = rndn2(canSelectSize) + 1;	// STARTCITYÀ» ¼±ÅÃ ÇÏÁö ¾Ê±âÀ§ÇØ + 1
+		selectedCity = rndn2(canSelectSize) + 1;	// STARTCITYì„ ì„ íƒ í•˜ì§€ ì•Šê¸°ìœ„í•´ + 1
 
 	rndCity = cityPool[selectedCity];
-	if ((canSelectSize) != selectedCity) {			// ¼±ÅÃµÈ µµ½Ã°¡ Á¦¼±ÅÃ µÇÁö ¾Êµµ·Ï ¹è¿­ÀÇ ³¡À¸·Î ÀÌµ¿
+	if ((canSelectSize) != selectedCity) {			// ì„ íƒëœ ë„ì‹œê°€ ì œì„ íƒ ë˜ì§€ ì•Šë„ë¡ ë°°ì—´ì˜ ëìœ¼ë¡œ ì´ë™
 		tmp = cityPool[canSelectSize];
 		cityPool[canSelectSize] = cityPool[selectedCity];
 		cityPool[selectedCity] = tmp;
 	}
-	return rndCity;									// ¼±ÅÃµÈ µµ½Ã ¹İÈ¯
+	return rndCity;									// ì„ íƒëœ ë„ì‹œ ë°˜í™˜
 }
 
 void mutation(int pool[POOLSIZE][DATANO]) {
-	int i, j, k;								// »óÈ£ ±³È¯µÉ µµ½Ã¼ø¼­ÀÇ ÀÎµ¦½º
-	int tmp;									// ±³È¯ ÀÓ½Ã ÀúÀå º¯¼ö
+	int i, j, k;								// ìƒí˜¸ êµí™˜ë  ë„ì‹œìˆœì„œì˜ ì¸ë±ìŠ¤
+	int tmp;									// êµí™˜ ì„ì‹œ ì €ì¥ ë³€ìˆ˜
 
 	for (i = 0; i < POOLSIZE; ++i) {
-		if (rndn(100) / 100.0 < MRATE) {	// µ¹¿¬º¯ÀÌ°¡ ÀÏ¾î³­´Ù¸é
+		if (rndn(100) / 100.0 < MRATE) {	// ëŒì—°ë³€ì´ê°€ ì¼ì–´ë‚œë‹¤ë©´
 			do {
-				j = rndn2(DATANO - 1);			// ¸¶Áö¸· µµ½Ã´Â ¹«Á¶°Ç STARTCITYÀÌ¿©¾ß ÇÏ¹Ç·Î 0~18°ª¸¸ °¡Áü
+				j = rndn2(DATANO - 1);			// ë§ˆì§€ë§‰ ë„ì‹œëŠ” ë¬´ì¡°ê±´ STARTCITYì´ì—¬ì•¼ í•˜ë¯€ë¡œ 0~18ê°’ë§Œ ê°€ì§
 				k = rndn2(DATANO - 1);
 			} while (i == j);
 
-			tmp = pool[i][k];					// ÀÓÀÇ ¼±ÅÃµÈ µÎ µµ½ÃÀÇ ¼ø¼­ ±³Ã¼
+			tmp = pool[i][k];					// ì„ì˜ ì„ íƒëœ ë‘ ë„ì‹œì˜ ìˆœì„œ êµì²´
 			pool[i][k] = pool[i][j];
 			pool[i][j] = tmp;
 		}
